@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F6F1EA">
+<title>Today, for us</title>
+<style>
+  :root {
+    --cream: #F6F1EA;
+    --ink: #3C332C;
+    --soft: #8A796C;
+    --line: #E4D8CC;
+    --card: #FFFCF8;
+    --coral: #E07A5F;
+    --coral-deep: #C45D45;
+    --sage: #6E9478;
+    --sage-pale: #E5EFE6;
+    --gold: #C6A15B;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--cream); color: var(--ink); }
+  body {
+    font-family: "Iowan Old Style", Palatino, Georgia, serif;
+    font-size: 18px;
+    line-height: 1.45;
+  }
+  button, input, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  .wrap { max-width: 430px; margin: 0 auto; padding: 22px 18px 48px; }
+  .eyebrow {
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--soft);
+    margin: 0;
+  }
+  h1 { font-weight: 500; font-size: 40px; margin: 4px 0 0; letter-spacing: -0.03em; }
+  .sub { color: var(--soft); margin: 4px 0 0; }
+  .sample {
+    background: #F3E6C8;
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin: 16px 0 0;
+    font-size: 15px;
+  }
+  .sample button { background: none; border: 0; color: var(--coral-deep); padding: 0; text-decoration: underline; }
+  .hero { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 18px; }
+  .daynum { font-size: 64px; line-height: 0.85; margin: 0; font-weight: 500; }
+  .daynum span { display: block; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--soft); margin-top: 6px; }
+  .stats { text-align: right; color: var(--soft); font-size: 15px; }
+  .stats b { display: block; color: var(--ink); font-size: 22px; font-weight: 500; }
+  .path { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px 6px; margin: 22px 0 6px; }
+  .dot {
+    width: 100%; aspect-ratio: 1; border-radius: 50%;
+    border: 1.5px solid var(--line); background: transparent; padding: 0;
+    color: var(--soft); font-size: 12px;
+  }
+  .dot.done { background: var(--sage); border-color: var(--sage); color: white; }
+  .dot.stop { border-color: var(--gold); }
+  .dot.on { outline: 2px solid var(--coral); outline-offset: 2px; }
+  .dot:disabled { opacity: 0.35; }
+  .why {
+    font-size: 20px;
+    line-height: 1.35;
+    margin: 16px 0 0;
+  }
+  .nextstop { color: var(--soft); font-size: 15px; margin: 8px 0 0; min-height: 1.4em; }
+  .card {
+    background: var(--card);
+    border-radius: 18px;
+    padding: 16px;
+    margin-top: 16px;
+    box-shadow: 0 1px 0 rgba(60,51,44,0.04);
+  }
+  .card h2 { font-size: 20px; font-weight: 500; margin: 0 0 10px; }
+  .row { display: flex; gap: 8px; }
+  .choice, .ghost, .go {
+    border-radius: 999px; border: 1.5px solid var(--line); background: white; padding: 10px 14px;
+  }
+  .choice.on { background: var(--ink); color: white; border-color: var(--ink); }
+  .go { background: var(--coral); color: white; border: 0; width: 100%; margin-top: 12px; }
+  .go:disabled { opacity: 0.4; }
+  .ghost { background: transparent; }
+  .help { color: var(--soft); font-size: 14px; margin: 8px 0 0; }
+  details summary { cursor: pointer; color: var(--soft); }
+  label { display: block; font-size: 14px; color: var(--soft); margin: 10px 0 4px; }
+  input, select {
+    width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; background: white;
+  }
+  .ribbon { display: flex; gap: 6px; flex-wrap: wrap; }
+  .bead { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); }
+  .bead.fill { background: var(--sage); border-color: var(--sage); }
+  .win { border: 0; border-bottom: 1px solid var(--line); border-radius: 0; padding-left: 0; }
+  .wall { margin: 10px 0 0; padding: 0; list-style: none; }
+  .wall li { padding: 6px 0; border-top: 1px solid var(--line); }
+  .story { font-size: 17px; margin: 0; }
+  svg.spark { width: 100%; height: 72px; display: block; margin-top: 8px; }
+  .cheer {
+    position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    background: rgba(246,241,234,0.72); text-align: center; padding: 24px;
+  }
+  .cheer.show { display: flex; }
+  .cheer p { font-size: 32px; margin: 0; }
+  .more { margin-top: 22px; color: var(--soft); font-size: 14px; }
+  .more button { background: none; border: 0; color: var(--soft); text-decoration: underline; padding: 0 6px 0 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Alysen</p>
+  <h1>Today, for us</h1>
+  <p class="sub" id="range">A daily check-in. For myself. For my family, Myra, Milton, and Erik.</p>
+  <div class="sample" id="sample" hidden>
+    This is a sample, so you can see the path fill in. Your real days start tomorrow.
+    <button type="button" id="clearSample">Back to my real page</button>
+  </div>
+  <div class="hero">
+    <p class="daynum" id="daynum">1<span>of 30</span></p>
+    <div class="stats">
+      <b id="streak">0</b> day streak
+      <div id="shown">0 days shown up</div>
+    </div>
+  </div>
+  <p class="help" id="welcome" hidden>Welcome back. Today counts.</p>
+  <div class="path" id="path"></div>
+  <p class="why" id="why"></p>
+  <p class="nextstop" id="nextstop"></p>
+
+  <section class="card">
+    <h2 id="checkTitle">Today</h2>
+    <div class="row">
+      <button class="choice" id="yes" type="button">On plan</button>
+      <button class="choice" id="no" type="button">Not quite</button>
+    </div>
+    <p class="help">No gluten, dairy, soy, alcohol, or added sugar. Carbs and fruit wait until midday. Weekends can have one off-plan meal, still without dairy or gluten.</p>
+    <div class="row" style="margin-top:12px">
+      <button class="choice" id="ab" type="button">Ab session done</button>
+    </div>
+    <button class="go" id="save" type="button">That's today</button>
+    <p class="help" id="locked" hidden></p>
+  </section>
+
+  <section class="card">
+    <h2>Ab rehab</h2>
+    <div class="ribbon" id="ribbon"></div>
+    <p class="help" id="abline"></p>
+    <details>
+      <summary>Phase, if you want to change it</summary>
+      <label for="phase">Phase</label>
+      <select id="phase">
+        <option value="1">1 Foundation</option>
+        <option value="2">2 Dive in</option>
+        <option value="3">3 Dynamism</option>
+        <option value="4">4 Home stretch</option>
+      </select>
+    </details>
+  </section>
+
+  <section class="card" id="storyCard">
+    <h2>How it's going</h2>
+    <p class="story" id="story"></p>
+    <svg class="spark" id="spark" hidden viewBox="0 0 300 72" preserveAspectRatio="none"></svg>
+  </section>
+
+  <section class="card">
+    <h2>Little wins</h2>
+    <input class="win" id="win" placeholder="One line, like jeans or energy" maxlength="80">
+    <ul class="wall" id="wall"></ul>
+  </section>
+
+  <details class="card">
+    <summary>Add a number, only if you have one</summary>
+    <label for="weight">Weight, lb</label>
+    <input id="weight" inputmode="decimal" placeholder="Optional">
+    <label>Apple Watch</label>
+    <div class="row">
+      <input id="move" inputmode="numeric" placeholder="Move">
+      <input id="exercise" inputmode="numeric" placeholder="Exercise">
+      <input id="stand" inputmode="numeric" placeholder="Stand">
+    </div>
+    <p class="help">Move calories, exercise minutes, stand hours.</p>
+    <label for="fat">InBody body fat %</label>
+    <input id="fat" inputmode="decimal" placeholder="Optional">
+    <label for="muscle">InBody muscle, lb</label>
+    <input id="muscle" inputmode="decimal" placeholder="Optional">
+    <button class="ghost" id="saveNums" type="button" style="margin-top:12px">Save numbers</button>
+  </details>
+
+  <div class="more">
+    <button type="button" id="peek" hidden>Peek ahead</button>
+    <button type="button" id="exportBtn">Save a backup</button>
+    <button type="button" id="importBtn">Bring a backup in</button>
+    <input id="file" type="file" accept="application/json" hidden>
+  </div>
+</div>
+<div class="cheer" id="cheer"><p id="cheerText">That's today.</p></div>
+<script>
+const START = new Date(2026, 9, 5);
+const DAYS = 30;
+const AB_WEEKS = 12;
+const STOPS = {
+  5: "Five days of taking care of the body God gave you.",
+  10: "Ten days. Myra, Milton, and Erik get a mom who is coming back to herself.",
+  15: "Halfway. Two C-sections, and you are building strength on purpose.",
+  20: "Twenty days of nourishing yourself. That is how you leave the hard season behind.",
+  30: "Thirty days. You did this for you, for them, and for the body that carried them."
+};
+const WHY = [
+  "For myself.",
+  "Today is for Myra, Milton, and Erik.",
+  "God cares how you care for this body. Today counts.",
+  "Two C-sections. Strength is something you are building, not something you missed.",
+  "Nourish yourself today. That is the whole assignment.",
+  "You are not in that postpartum season anymore. Today is you walking out.",
+  "Do this for the mom Myra and Milton reach for, and for Erik.",
+  "Your body carried both of them. Today you take care of it.",
+  "For you. Not as a project. As a person God loves.",
+  "Strong looks like showing up after two C-sections.",
+  "Feed yourself like someone worth keeping well.",
+  "The horrific season does not get the last word. This day does.",
+  "For myself. Then for Myra, Milton, and Erik.",
+  "Erik, Myra, and Milton get you, cared for.",
+  "This is stewardship. Your body, looked after.",
+  "One meal, one session, for the woman you are now.",
+  "You made it through postpartum. Now you get to heal on purpose.",
+  "For the version of you that felt lost in that season.",
+  "God is not asking for punishment. He is inviting care.",
+  "Two babies. Two C-sections. Today is repair.",
+  "Nourishing you is how you keep showing up for them.",
+  "You are allowed to get strong.",
+  "Do it for the body that is still yours.",
+  "Myra, Milton, and Erik are reason enough. So are you.",
+  "The hard season was real. So is this quiet rebuilding.",
+  "Today, eat in a way that loves you.",
+  "Strength after surgery is slow, and it is still strength.",
+  "For God, in the ordinary way: take care of what he gave you.",
+  "You are coming back. That is the motivation.",
+  "Thirty days of choosing you, them, and a body that can carry the life you want."
+];
+const KEY = "onward-alysen-v1";
+
+function iso(d) {
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() + "-" + m + "-" + day;
+}
+function addDays(d, n) {
+  const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  x.setDate(x.getDate() + n);
+  return x;
+}
+function todayDate() {
+  const n = new Date();
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+function programDates() {
+  return Array.from({ length: DAYS }, (_, i) => addDays(START, i));
+}
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || { days: {}, phase: "1", wins: [] }; }
+  catch (e) { return { days: {}, phase: "1", wins: [] }; }
+}
+function saveState() {
+  if (sample) return;
+  localStorage.setItem(KEY, JSON.stringify(state));
+}
+let state = load();
+let sample = false;
+let selected = iso(todayDate());
+
+function dayRecord(key) {
+  return state.days[key] || null;
+}
+function showed(rec) {
+  return rec && (rec.onPlan === true || rec.onPlan === false || rec.ab);
+}
+function loggedCount() {
+  return programDates().filter(d => showed(dayRecord(iso(d)))).length;
+}
+function streakCount() {
+  const dates = programDates();
+  let cursor = null;
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const d = dates[i];
+    if (!sample && d > todayDate()) continue;
+    if (showed(dayRecord(iso(d)))) { cursor = d; break; }
+  }
+  if (!cursor) return 0;
+  if (!sample && iso(cursor) !== iso(todayDate()) && iso(cursor) !== iso(addDays(todayDate(), -1)) && todayDate() >= START) {
+    return 0;
+  }
+  let n = 0;
+  while (cursor >= START && showed(dayRecord(iso(cursor)))) {
+    n += 1;
+    cursor = addDays(cursor, -1);
+  }
+  return n;
+}
+function welcomeBack() {
+  const t = iso(todayDate());
+  const y = iso(addDays(todayDate(), -1));
+  const prev = programDates().map(iso).filter(k => k < t && showed(dayRecord(k)));
+  if (!prev.length || showed(dayRecord(t))) return false;
+  return prev[prev.length - 1] !== y && todayDate() >= START;
+}
+function abWeekFill(week) {
+  const from = addDays(START, (week - 1) * 7);
+  const to = addDays(from, 6);
+  let n = 0;
+  for (let d = new Date(from); d <= to; d = addDays(d, 1)) {
+    const rec = dayRecord(iso(d));
+    if (rec && rec.ab) n += 1;
+  }
+  return n >= 3;
+}
+function trendWeights() {
+  const pts = [];
+  programDates().forEach(d => {
+    const rec = dayRecord(iso(d));
+    if (rec && rec.weight) pts.push(Number(rec.weight));
+  });
+  if (pts.length < 3) return null;
+  let e = pts[0];
+  const series = pts.map(v => { e = e + 0.25 * (v - e); return e; });
+  return { first: series[0], last: series[series.length - 1], series };
+}
+function scans() {
+  const list = [];
+  Object.keys(state.days).sort().forEach(k => {
+    const r = state.days[k];
+    if (r && (r.fat || r.muscle)) list.push(r);
+  });
+  return list;
+}
+function storyText() {
+  const bits = [];
+  const tw = trendWeights();
+  if (tw) {
+    const diff = tw.last - tw.first;
+    const dir = Math.abs(diff) < 0.3 ? "holding steady" : (diff < 0 ? "down " + Math.abs(diff).toFixed(1) + " lb" : "up " + diff.toFixed(1) + " lb");
+    bits.push("Your trend weight is " + dir + ".");
+  }
+  const sc = scans();
+  if (sc.length >= 2) {
+    const a = sc[0], b = sc[sc.length - 1];
+    if (a.fat && b.fat) {
+      const fd = Number(b.fat) - Number(a.fat);
+      bits.push("Body fat is " + (fd < -0.1 ? "down" : fd > 0.1 ? "up" : "about the same") + " since your first scan.");
+    }
+    if (a.muscle && b.muscle) {
+      const md = Number(b.muscle) - Number(a.muscle);
+      if (md < -0.4) bits.push("Muscle dipped. The scale is not the only score.");
+      else if (md > 0.4) bits.push("Muscle held or came up. That's the win.");
+    }
+  } else if (!tw) {
+    bits.push("You are doing this for you, for Myra, Milton, and Erik, and for the body God trusted you with.");
+  }
+  const n = loggedCount();
+  if (n > 0 && n < 30) bits.push(STOPS[[5,10,15,20,30].find(s => s > n) || 30] ? "" : "");
+  const next = [5,10,15,20,30].find(s => s > n);
+  if (next) bits.push((next - n) + (next - n === 1 ? " day" : " days") + " to the next stop.");
+  return bits.filter(Boolean).join(" ");
+}
+function nextStopLine() {
+  const n = loggedCount();
+  const next = [5,10,15,20,30].find(s => s > n);
+  if (!next) return STOPS[30];
+  if (STOPS[n]) return STOPS[n];
+  return "Next stop, day " + next + ". " + STOPS[next];
+}
+function whyLine() {
+  const dates = programDates();
+  let idx = dates.findIndex(d => iso(d) === selected);
+  if (idx < 0) idx = 0;
+  return WHY[idx];
+}
+
+let planChoice = null;
+let abChoice = false;
+
+function render() {
+  const dates = programDates();
+  const t = todayDate();
+  const before = t < START;
+  const after = t > addDays(START, DAYS - 1);
+  document.getElementById("sample").hidden = !sample;
+  document.getElementById("peek").hidden = sample || loggedCount() > 0;
+  const dayIndex = dates.findIndex(d => iso(d) === selected);
+  const shownDay = dayIndex >= 0 ? dayIndex + 1 : (before ? 0 : 30);
+  document.getElementById("daynum").innerHTML = (before && !sample ? "Soon" : String(shownDay || 1)) + "<span>" + (before && !sample ? "starts tomorrow" : "of 30") + "</span>";
+  document.getElementById("streak").textContent = streakCount();
+  document.getElementById("shown").textContent = loggedCount() + " days shown up";
+  const back = welcomeBack();
+  document.getElementById("welcome").hidden = !back;
+  if (back) document.getElementById("welcome").textContent = "Welcome back. You, Myra, Milton, and Erik still get today.";
+  document.getElementById("why").textContent = whyLine();
+  document.getElementById("nextstop").textContent = nextStopLine();
+  const path = document.getElementById("path");
+  path.innerHTML = "";
+  dates.forEach((d, i) => {
+    const key = iso(d);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "dot" + (showed(dayRecord(key)) ? " done" : "") + (STOPS[i + 1] ? " stop" : "") + (key === selected ? " on" : "");
+    btn.textContent = i + 1;
+    const future = d > t && !sample;
+    btn.disabled = future || (before && !sample);
+    btn.addEventListener("click", () => { selected = key; pullForm(); render(); });
+    path.appendChild(btn);
+  });
+  const rec = dayRecord(selected) || {};
+  document.getElementById("yes").classList.toggle("on", planChoice === true);
+  document.getElementById("no").classList.toggle("on", planChoice === false);
+  document.getElementById("ab").classList.toggle("on", abChoice);
+  const locked = (before && !sample) || (addDays(START, dates.findIndex(d => iso(d) === selected)) > t && !sample);
+  document.getElementById("save").disabled = locked || (planChoice === null && !abChoice);
+  document.getElementById("locked").hidden = !locked;
+  document.getElementById("locked").textContent = before ? "Day 1 is tomorrow. You can peek, then it starts for real." : "";
+  document.getElementById("checkTitle").textContent = selected === iso(t) ? "Today" : "Day " + (dayIndex + 1);
+  const ribbon = document.getElementById("ribbon");
+  ribbon.innerHTML = "";
+  let filled = 0;
+  for (let w = 1; w <= AB_WEEKS; w++) {
+    const bead = document.createElement("div");
+    const on = abWeekFill(w);
+    if (on) filled += 1;
+    bead.className = "bead" + (on ? " fill" : "");
+    ribbon.appendChild(bead);
+  }
+  document.getElementById("abline").textContent = filled ? filled + " of 12 weeks with a few sessions in." : "Three sessions fill a week.";
+  document.getElementById("phase").value = state.phase || "1";
+  document.getElementById("story").textContent = storyText();
+  drawSpark();
+  const wall = document.getElementById("wall");
+  wall.innerHTML = "";
+  (state.wins || []).slice(0, 6).forEach(w => {
+    const li = document.createElement("li");
+    li.textContent = w;
+    wall.appendChild(li);
+  });
+}
+function drawSpark() {
+  const tw = trendWeights();
+  const svg = document.getElementById("spark");
+  if (!tw) { svg.hidden = true; return; }
+  svg.hidden = false;
+  const min = Math.min(...tw.series), max = Math.max(...tw.series);
+  const span = max - min || 1;
+  const pts = tw.series.map((v, i) => {
+    const x = tw.series.length === 1 ? 0 : (i / (tw.series.length - 1)) * 300;
+    const y = 66 - ((v - min) / span) * 56;
+    return x.toFixed(1) + "," + y.toFixed(1);
+  }).join(" ");
+  svg.innerHTML = '<polyline fill="none" stroke="#6E9478" stroke-width="3" points="' + pts + '" />';
+}
+function pullForm() {
+  const rec = dayRecord(selected) || {};
+  planChoice = rec.onPlan === true ? true : rec.onPlan === false ? false : null;
+  abChoice = !!rec.ab;
+  document.getElementById("weight").value = rec.weight || "";
+  document.getElementById("move").value = rec.move || "";
+  document.getElementById("exercise").value = rec.exercise || "";
+  document.getElementById("stand").value = rec.stand || "";
+  document.getElementById("fat").value = rec.fat || "";
+  document.getElementById("muscle").value = rec.muscle || "";
+}
+function ensureDay() {
+  if (!state.days[selected]) state.days[selected] = {};
+  return state.days[selected];
+}
+function cheer(text) {
+  const el = document.getElementById("cheer");
+  document.getElementById("cheerText").textContent = text;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 1400);
+}
+document.getElementById("yes").onclick = () => { planChoice = true; render(); };
+document.getElementById("no").onclick = () => { planChoice = false; render(); };
+document.getElementById("ab").onclick = () => { abChoice = !abChoice; render(); };
+document.getElementById("save").onclick = () => {
+  if (sample) { cheer("That's the idea."); return; }
+  const rec = ensureDay();
+  if (planChoice !== null) rec.onPlan = planChoice;
+  rec.ab = abChoice;
+  saveState();
+  const n = loggedCount();
+  cheer(STOPS[n] || whyLine());
+  render();
+};
+document.getElementById("saveNums").onclick = () => {
+  if (sample) return;
+  const rec = ensureDay();
+  ["weight", "move", "exercise", "stand", "fat", "muscle"].forEach(id => {
+    const v = document.getElementById(id).value.trim();
+    if (v) rec[id] = v; else delete rec[id];
+  });
+  saveState();
+  cheer("Saved.");
+  render();
+};
+document.getElementById("phase").onchange = e => {
+  state.phase = e.target.value;
+  saveState();
+};
+document.getElementById("win").addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const v = e.target.value.trim();
+  if (!v || sample) return;
+  state.wins = [v].concat(state.wins || []).slice(0, 20);
+  e.target.value = "";
+  saveState();
+  render();
+});
+document.getElementById("peek").onclick = () => loadSample();
+document.getElementById("clearSample").onclick = () => { sample = false; state = load(); selected = iso(todayDate()); pullForm(); render(); };
+function loadSample() {
+  sample = true;
+  const days = {};
+  const weights = { 1: "162.4", 3: "161.8", 6: "161.1", 9: "160.6" };
+  for (let i = 1; i <= 9; i++) {
+    const key = iso(addDays(START, i - 1));
+    days[key] = { onPlan: i !== 7, ab: i !== 4 && i !== 7, weight: weights[i] };
+  }
+  days[iso(START)].fat = "32.4";
+  days[iso(START)].muscle = "62.1";
+  days[iso(addDays(START, 8))].fat = "31.1";
+  days[iso(addDays(START, 8))].muscle = "62.4";
+  state = { days, phase: "1", wins: ["Jeans felt easier", "More energy after lunch"] };
+  selected = iso(addDays(START, 8));
+  pullForm();
+  render();
+}
+document.getElementById("exportBtn").onclick = () => {
+  const blob = new Blob([JSON.stringify(load(), null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "onward-backup.json";
+  a.click();
+};
+document.getElementById("importBtn").onclick = () => document.getElementById("file").click();
+document.getElementById("file").onchange = e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    state = JSON.parse(reader.result);
+    sample = false;
+    saveState();
+    pullForm();
+    render();
+  };
+  reader.readAsText(f);
+};
+if (location.hash === "#peek") loadSample();
+else { pullForm(); render(); }
+</script>
+</body>
+</html>
